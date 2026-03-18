@@ -402,8 +402,15 @@ pre {
   }
 
   .activity-list {
+    flex-wrap: nowrap;
     max-height: none;
-    overflow: visible;
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding-bottom: 12px;
+  }
+
+  .activity-pill {
+    flex: 0 0 auto;
   }
 
   .chat-history {

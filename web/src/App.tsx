@@ -5,6 +5,8 @@ import { getConfig, getDirectory, getFile, getIndexStatus, getSearchResults, get
 import type { AppConfig, DirectoryEntry, SearchResult, SessionMessage } from "./types";
 
 const SESSION_ID = "main";
+const OPEN_FILE_STORAGE_KEY = "code-agent-open-file-path";
+const DIRECTORY_STORAGE_KEY = "code-agent-current-path";
 
 type ActivityItem =
   | { kind: "status"; text: string }
@@ -13,6 +15,7 @@ type ActivityItem =
 
 export function App() {
   const chatHistoryRef = useRef<HTMLDivElement | null>(null);
+  const isChatInteractingRef = useRef(false);
   const shouldStickChatToBottomRef = useRef(true);
   const [config, setConfig] = useState<AppConfig | null>(null);
   const [currentPath, setCurrentPath] = useState(".");
@@ -53,6 +56,16 @@ export function App() {
     shouldStickChatToBottomRef.current = distanceFromBottom < 48;
   }
 
+  function pauseChatAutoStick() {
+    isChatInteractingRef.current = true;
+    shouldStickChatToBottomRef.current = false;
+  }
+
+  function resumeChatAutoStick() {
+    isChatInteractingRef.current = false;
+    updateChatStickiness();
+  }
+
   async function loadDirectory(targetPath: string) {
     const payload = await getDirectory(targetPath);
     setCurrentPath(payload.path);
@@ -72,9 +85,26 @@ export function App() {
     void (async () => {
       try {
         const [configPayload, sessionPayload] = await Promise.all([getConfig(), getSession(SESSION_ID)]);
+        const savedDirectoryPath = window.localStorage.getItem(DIRECTORY_STORAGE_KEY)?.trim() || ".";
+        const savedOpenFilePath = window.localStorage.getItem(OPEN_FILE_STORAGE_KEY)?.trim() || "";
         setConfig(configPayload);
         setSessionMessages(sessionPayload.messages);
-        await loadDirectory(".");
+
+        const initialDirectoryPath =
+          savedOpenFilePath && savedOpenFilePath.includes("/")
+            ? savedOpenFilePath.split("/").slice(0, -1).join("/") || "."
+            : savedDirectoryPath;
+
+        await loadDirectory(initialDirectoryPath).catch(async () => {
+          window.localStorage.removeItem(DIRECTORY_STORAGE_KEY);
+          await loadDirectory(".");
+        });
+
+        if (savedOpenFilePath) {
+          await loadFile(savedOpenFilePath).catch(() => {
+            window.localStorage.removeItem(OPEN_FILE_STORAGE_KEY);
+          });
+        }
       } catch (caughtError) {
         setError(String(caughtError));
       }
@@ -83,6 +113,10 @@ export function App() {
 
   useEffect(() => {
     if (!chatHistoryRef.current) {
+      return;
+    }
+
+    if (isChatInteractingRef.current) {
       return;
     }
 
@@ -98,6 +132,27 @@ export function App() {
       window.cancelAnimationFrame(rafId);
     };
   }, [sessionMessages]);
+
+  useEffect(() => {
+    if (typeof window === "undefined") {
+      return;
+    }
+
+    window.localStorage.setItem(DIRECTORY_STORAGE_KEY, currentPath);
+  }, [currentPath]);
+
+  useEffect(() => {
+    if (typeof window === "undefined") {
+      return;
+    }
+
+    if (!openFilePath) {
+      window.localStorage.removeItem(OPEN_FILE_STORAGE_KEY);
+      return;
+    }
+
+    window.localStorage.setItem(OPEN_FILE_STORAGE_KEY, openFilePath);
+  }, [openFilePath]);
 
   useEffect(() => {
     if (!deferredSearch.trim()) {
@@ -360,6 +415,12 @@ export function App() {
               ref={chatHistoryRef}
               className="chat-history"
               onScroll={updateChatStickiness}
+              onTouchStart={pauseChatAutoStick}
+              onTouchEnd={resumeChatAutoStick}
+              onTouchCancel={resumeChatAutoStick}
+              onPointerDown={pauseChatAutoStick}
+              onPointerUp={resumeChatAutoStick}
+              onPointerCancel={resumeChatAutoStick}
             >
               {sessionMessages.map((message, index) => (
                 <article key={`${message.role}-${index}`} className={`message message-${message.role}`}>
