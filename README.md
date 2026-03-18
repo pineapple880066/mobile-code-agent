@@ -1,5 +1,7 @@
 # Mobile Code Agent
 
+![Mobile Code Agent Demo](./docs/images/mobile-code-agent-demo.png)
+
 A mobile-friendly coding agent with a VS Code-like web UI, Monaco editor, indexed code search, and a tool-calling backend for a local workspace. Open it on your phone over the network, lie back, and let AI inspect, edit, and write code for you.
 
 [中文说明](./README_CN.md)

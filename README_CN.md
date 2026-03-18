@@ -1,5 +1,7 @@
 # Mobile Code Agent
 
+![Mobile Code Agent 演示图](./docs/images/mobile-code-agent-demo.png)
+
 一个适合手机联网使用的 AI 写代码工具。它提供了类似 VS Code 的网页界面、Monaco 编辑器、代码索引搜索和带工具调用能力的 Agent 后端。你可以直接在手机上打开它，躺着查看项目、改代码、跑检查，并让 AI 帮你写代码。
 
 [English README](./README.md)
