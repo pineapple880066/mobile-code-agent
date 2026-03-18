@@ -173,6 +173,34 @@ The web app includes:
 - agent chat panel with tool activity stream
 - index status and manual rebuild
 
+## Agent workflow helpers
+
+The agent now has dedicated tools for safer edit workflows inside git repositories:
+
+- `git_status`
+- `git_diff`
+- `run_checks`
+- `git_commit`
+
+This lets the agent inspect the current working tree, run build/test checks, and create a commit after successful changes.
+
+The automatic commit tool is intentionally conservative:
+
+- it refuses to auto-commit if the repository was already dirty when the agent run started
+- it runs `git diff --check` on staged changes before committing
+
+These safeguards help avoid accidentally sweeping unrelated local edits into an agent-generated commit.
+
+## VS Code tasks
+
+If you open the project in local VS Code, these workspace tasks are available in `.vscode/tasks.json`:
+
+- `Code Agent: Dev Server`
+- `Code Agent: Web Dev`
+- `Code Agent: Build`
+- `Code Agent: Test`
+- `Code Agent: Rebuild Index`
+
 ## API surface
 
 Main endpoints:
