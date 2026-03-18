@@ -8,8 +8,60 @@ import type {
   SessionMessage,
 } from "./types";
 
+const AUTH_STORAGE_KEY = "code-agent-auth-token";
+
+function persistAuthTokenFromUrl(): string | null {
+  if (typeof window === "undefined") {
+    return null;
+  }
+
+  const url = new URL(window.location.href);
+  const hashParams = new URLSearchParams(url.hash.replace(/^#/, ""));
+  const token = url.searchParams.get("token")?.trim() || hashParams.get("token")?.trim() || "";
+
+  if (!token) {
+    return window.localStorage.getItem(AUTH_STORAGE_KEY);
+  }
+
+  window.localStorage.setItem(AUTH_STORAGE_KEY, token);
+
+  if (url.searchParams.has("token")) {
+    url.searchParams.delete("token");
+  }
+  if (hashParams.has("token")) {
+    hashParams.delete("token");
+    url.hash = hashParams.toString();
+  }
+
+  const nextUrl = `${url.pathname}${url.search}${url.hash ? `#${url.hash.replace(/^#/, "")}` : ""}`;
+  window.history.replaceState(null, "", nextUrl);
+  return token;
+}
+
+function resolveAuthToken(): string {
+  if (typeof window === "undefined") {
+    return "";
+  }
+
+  return persistAuthTokenFromUrl() ?? "";
+}
+
+function withAuthHeaders(init?: RequestInit): RequestInit {
+  const token = resolveAuthToken();
+  const headers = new Headers(init?.headers);
+
+  if (token) {
+    headers.set("authorization", `Bearer ${token}`);
+  }
+
+  return {
+    ...init,
+    headers,
+  };
+}
+
 async function fetchJson<T>(input: RequestInfo | URL, init?: RequestInit): Promise<T> {
-  const response = await fetch(input, init);
+  const response = await fetch(input, withAuthHeaders(init));
   if (!response.ok) {
     throw new Error(await response.text());
   }
@@ -69,11 +121,14 @@ export async function streamAgent(
   onEvent: (event: AgentStreamEvent) => void,
 ): Promise<void> {
   const response = await fetch("/api/agent/stream", {
+    ...withAuthHeaders({
+      method: "POST",
+      headers: {
+        "content-type": "application/json",
+      },
+      body: JSON.stringify(payload),
+    }),
     method: "POST",
-    headers: {
-      "content-type": "application/json",
-    },
-    body: JSON.stringify(payload),
   });
 
   if (!response.ok || !response.body) {

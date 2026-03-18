@@ -9,6 +9,7 @@ services:
     env_file:
       - .env
     environment:
+      CODE_AGENT_HOST: 0.0.0.0
       CODE_AGENT_PORT: 3000
       CODE_AGENT_WORKSPACE: /workspace
     volumes:

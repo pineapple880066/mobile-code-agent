@@ -72,6 +72,48 @@ npm start
 
 The server defaults to `http://127.0.0.1:3000`.
 
+To expose it on your LAN or a public server, set:
+
+```bash
+CODE_AGENT_HOST=0.0.0.0
+CODE_AGENT_PORT=3000
+```
+
+Then open:
+
+- `http://<your-server-ip>:3000`
+
+For the Vite dev frontend, you can also expose the UI with:
+
+```bash
+CODE_AGENT_WEB_HOST=0.0.0.0
+CODE_AGENT_WEB_PORT=5173
+```
+
+Then open:
+
+- `http://<your-server-ip>:5173`
+
+## Public exposure safety
+
+This app can read and write files in the configured workspace. Do not expose it publicly without protection.
+
+Recommended minimum:
+
+```bash
+CODE_AGENT_AUTH_TOKEN=choose-a-long-random-secret
+```
+
+If you set `CODE_AGENT_AUTH_TOKEN`, the web UI can authenticate by opening it with:
+
+- `http://<your-server-ip>:3000/#token=your-secret`
+
+or in Vite dev mode:
+
+- `http://<your-server-ip>:5173/#token=your-secret`
+
+The token is stored in browser local storage after first load and the URL fragment is cleared from the address bar.
+
 ## One-command Docker startup
 
 If you want a single command instead of running backend and frontend separately:
@@ -83,6 +125,7 @@ docker compose up --build
 Then open:
 
 - [http://127.0.0.1:3000](http://127.0.0.1:3000)
+- or `http://<your-server-ip>:3000` from another machine on the network
 
 How it works:
 

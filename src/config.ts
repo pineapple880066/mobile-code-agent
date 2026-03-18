@@ -48,6 +48,7 @@ export type EmbeddingConfig = {
  * 服务器配置
  */
 export type ServerConfig = {
+  host: string;              // 监听地址
   port: number;              // 服务器端口
   workspaceRoot: string;     // 工作区根目录
   authToken: string | null;  // 认证令牌（可选）
@@ -130,6 +131,7 @@ export function resolveEmbeddingConfig(): EmbeddingConfig {
  */
 export function resolveServerConfig(workspaceRoot = resolveWorkspaceRoot()): ServerConfig {
   return {
+    host: firstNonBlank(process.env.CODE_AGENT_HOST, process.env.HOST, "127.0.0.1"),
     port: parsePort(process.env.CODE_AGENT_PORT, 3000),
     workspaceRoot: path.resolve(workspaceRoot),
     authToken: process.env.CODE_AGENT_AUTH_TOKEN?.trim() || null,
