@@ -1,9 +1,9 @@
 {
-  "name": "code-agent",
+  "name": "mobile-code-agent",
   "version": "0.1.0",
   "private": true,
   "type": "module",
-  "description": "OpenClaw-inspired coding agent for local workspaces",
+  "description": "A mobile-friendly coding agent you can open over the network and use from your phone to inspect, edit, and let AI write code.",
   "bin": {
     "code-agent": "./dist/index.js"
   },
