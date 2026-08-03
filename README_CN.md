@@ -248,6 +248,26 @@ npm run cli -- search "index manager"
 
 - `PROMPT_GAP_REPORT.md`
 
+## main 分支保护
+
+公开仓库的 `main` 分支目前启用了以下保护规则：
+
+- 所有修改必须通过 Pull Request 合并；
+- 当前要求的审批数是 `0`，因为这是一个个人维护的仓库；
+- PR conversation 必须先解决；
+- 管理员账号也受这套规则约束；
+- 禁止对 `main` force-push，也禁止删除 `main`；
+- 目前没有要求 status checks，因为仓库暂时还没有 GitHub Actions workflow。
+
+贡献代码时，请创建功能分支、推送分支，然后向 `main` 发起 Pull Request：
+
+```bash
+git switch -c feature/my-change
+git push -u origin feature/my-change
+```
+
+可以在这里查看[仓库分支保护设置](https://github.com/pineapple880066/mobile-code-agent/settings/branches)。以后加入协作者或 CI 后，应相应提高审批数，并配置必须通过的检查项。
+
 ## 验证命令
 
 ```bash
