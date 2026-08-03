@@ -235,6 +235,26 @@ The implementation status against `coding-agent-prompt.md` is documented in:
 
 - `PROMPT_GAP_REPORT.md`
 
+## Main branch protection
+
+The public repository protects `main` with these rules:
+
+- changes must enter through a pull request;
+- pull request approval is currently set to `0` because this is a solo-maintainer repository;
+- pull request conversations must be resolved;
+- administrators are included in the protection rule;
+- force-pushes and deletion of `main` are disabled;
+- no status checks are required yet because this repository does not currently have GitHub Actions workflows.
+
+To contribute, create a feature branch, push it, and open a pull request targeting `main`:
+
+```bash
+git switch -c feature/my-change
+git push -u origin feature/my-change
+```
+
+See the repository's [branch protection settings](https://github.com/pineapple880066/mobile-code-agent/settings/branches). When collaborators or CI are added, the approval count and required checks should be increased accordingly.
+
 ## Validate
 
 ```bash
