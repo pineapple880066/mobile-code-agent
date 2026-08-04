@@ -1,4 +1,4 @@
-# Mobile Code Agent
+# Mobile Code Agent / SDD
 
 ![Mobile Code Agent 演示图](./docs/images/mobile-code-agent-demo.png)
 
